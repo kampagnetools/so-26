@@ -1,0 +1,228 @@
+<div class="msf-center-layout">
+    <div class="box">
+        <div class="header">Speak out</div>
+        
+        <div class="body">
+            <div class="input-section">
+                <label>Vælg kanal</label>
+                <select id="channel" onchange="generateLink()">
+                    <optgroup label="BETALT (PAID)">
+                        <option value="paid-social-lead">Paid Social (Lead Card)</option>
+                        <option value="paid-social-img">Paid Social (Image)</option>
+                        <option value="paid-social-vid">Paid Social (Video)</option>
+                        <option value="search">Paid Search (Google)</option>
+                    </optgroup>
+                    <optgroup label="ORGANISK (ORGANIC)">
+                        <option value="organic-fb">Organic Facebook</option>
+                        <option value="organic-ig">Organic Instagram</option>
+                        <option value="organic-li">Organic LinkedIn</option>
+                        <option value="advocate">Advocate / Partner</option>
+                    </optgroup>
+                    <optgroup label="EMAIL">
+                        <option value="email">Email (Newsletter)</option>
+                    </optgroup>
+                    <optgroup label="ANDET (OTHER)">
+                        <option value="referral">Referral (msf)</option>
+                        <option value="web-banner">Web Banner (Internal)</option>
+                        <option value="print">Print (Outdoor)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="input-section">
+                <label>A/B-test eller specifikt budskab (UTM Term)</label>
+                <input type="text" id="utm_term" placeholder="Eks: test_a, foto_laege eller budskab_beskyttelse" oninput="generateLink()">
+                <small style="display:block; margin-top:5px; color:#666; font-size:11px;">
+                    Brug dette felt til at skelne mellem forskellige versioner af samme opslag.
+                </small>
+            </div>
+
+            <div class="output-section">
+                <label>Genereret URL</label>
+                <div id="final-url" class="url-display">...</div>
+                <button onclick="copyUrl()" id="copy-btn">KOPIÉR LINK</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="code-line">underskriftskode: <span id="code-sign">-</span></div>
+            <div class="code-line">kampagnekode: <span id="code-camp">-</span></div>
+            <div class="code-line">fast_bidrag_kode: <span id="code-rec">-</span></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        background: #f4f4f4;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .msf-center-layout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .box {
+        width: 100%;
+        max-width: 800px;
+        border: 1px solid #000;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .header {
+        background: #000;
+        color: #fff;
+        padding: 18px 25px;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 1.5px;
+    }
+
+    .body {
+        padding: 40px;
+    }
+
+    .input-section {
+        margin-bottom: 30px;
+    }
+
+    label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #000;
+        text-transform: uppercase;
+    }
+
+    select, input {
+        width: 100%;
+        border: 1px solid #000;
+        padding: 15px;
+        padding-right: 45px; /* Plads til pilen */
+        font-size: 16px;
+        background: #fff;
+        border-radius: 0;
+        outline: none;
+        box-sizing: border-box;
+        font-family: inherit;
+        appearance: none; /* Fjerner standard pil */
+    }
+
+    /* Brugerdefineret pil rykket 20px ind fra højre */
+    select {
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 20px center;
+        background-size: 16px;
+        cursor: pointer;
+    }
+
+    input:focus {
+        border-color: #ee0000;
+    }
+
+    optgroup { font-weight: bold; background: #f0f0f0; }
+
+    .url-display {
+        border: 1px solid #e0e0e0;
+        padding: 20px;
+        font-size: 14px;
+        word-break: break-all;
+        margin-bottom: 20px;
+        background: #fdfdfd;
+        line-height: 1.6;
+        color: #000;
+        min-height: 50px;
+    }
+
+    button {
+        width: 100%;
+        background: #000;
+        color: #fff;
+        border: none;
+        padding: 18px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+
+    button:hover { background: #333; }
+
+    .footer {
+        border-top: 1px solid #eee;
+        padding: 25px 40px;
+        background: #fafafa;
+    }
+
+    .code-line {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 6px;
+        text-transform: lowercase;
+    }
+
+    .code-line span {
+        font-weight: 700;
+        color: #000;
+        margin-left: 8px;
+        font-family: monospace;
+    }
+</style>
+
+<script>
+    const trackingData = {
+        "paid-social-lead":{ src: "facebook",  med: "paid-social", con: "leadcard",    sign: "4113", camp: "4120", rec: "4127", path: "/beskyt-laeger/tak/", isLead: true },
+        "paid-social-img": { src: "facebook",  med: "paid-social", con: "image",       sign: "4114", camp: "4121", rec: "4128", path: "/beskyt-laeger/" },
+        "paid-social-vid": { src: "facebook",  med: "paid-social", con: "video",       sign: "4114", camp: "4121", rec: "4128", path: "/beskyt-laeger/" },
+        "search":          { src: "google",    med: "cpc",         con: "search",      sign: "4118", camp: "4125", rec: "4132", path: "/beskyt-laeger/" },
+        "organic-fb":      { src: "facebook",  med: "organic",     con: "post",        sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" },
+        "organic-ig":      { src: "instagram", med: "organic",     con: "post",        sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" },
+        "organic-li":      { src: "linkedin",  med: "organic",     con: "post",        sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" },
+        "advocate":        { src: "advocate",  med: "social",      con: "post",        sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" },
+        "email":           { src: "newsletter",med: "email",       con: "newsletter",  sign: "4115", camp: "4122", rec: "4129", path: "/beskyt-laeger/" },
+        "referral":        { src: "msf",       med: "referral",    con: "landingpage", sign: "4112", camp: "4119", rec: "4126", path: "/beskyt-laeger/" },
+        "web-banner":      { src: "msf-web",   med: "internal",    con: "banner",      sign: "4112", camp: "4119", rec: "4126", path: "/beskyt-laeger/" },
+        "print":           { src: "outdoor",   med: "print",       con: "poster",      sign: "4116", camp: "4123", rec: "4130", path: "/beskyt-laeger/" }
+    };
+
+    function generateLink() {
+        const channelKey = document.getElementById('channel').value;
+        const termValue = document.getElementById('utm_term').value.trim().replace(/\s+/g, '_').toLowerCase();
+        const data = trackingData[channelKey];
+        const baseUrl = "https://msf.dk" + data.path;
+        
+        let url = `${baseUrl}?utm_campaign=speakout26&utm_source=${data.src}&utm_medium=${data.med}&utm_content=${data.con}&campaign_code=${data.camp}&signcode=${data.sign}&campaign_code_recurring=${data.rec}`;
+        
+        if (termValue !== "") {
+            url += `&utm_term=${termValue}`;
+        }
+        
+        if (data.isLead) url += "&lead_card=true";
+
+        document.getElementById('final-url').innerText = url;
+        document.getElementById('code-sign').innerText = data.sign;
+        document.getElementById('code-camp').innerText = data.camp;
+        document.getElementById('code-rec').innerText = data.rec;
+    }
+
+    function copyUrl() {
+        const text = document.getElementById('final-url').innerText;
+        const btn = document.getElementById('copy-btn');
+        navigator.clipboard.writeText(text).then(() => {
+            btn.innerText = "✓ KOPIERET";
+            setTimeout(() => { btn.innerText = "KOPIÉR LINK"; }, 1000);
+        });
+    }
+    
+    generateLink();
+</script>
