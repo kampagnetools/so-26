@@ -1,4 +1,8 @@
-
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<title>Link Generator</title>
 <style>
     html, body {
         height: 100%;
@@ -198,7 +202,6 @@
                         <option value="print">Print (Outdoor)</option>
                     </optgroup>
                 </select>
-
             </div>
 
             <div class="input-section">
@@ -310,7 +313,8 @@
         const termValue = document.getElementById('utm_term').value.trim().replace(/\s+/g, '_').toLowerCase();
         const baseUrl = "https://msf.dk" + data.path;
 
-        let url = `${baseUrl}?utm_campaign=speakout26&utm_source=${data.src}&utm_medium=${data.med}&utm_content=${data.con}&campaign_code=${data.camp}&signcode=${data.sign}&campaign_code_recurring=${data.rec}`;
+        // campaign_code is now placed before campaign_code_recurring
+        let url = `${baseUrl}?utm_campaign=speakout26&utm_source=${data.src}&utm_medium=${data.med}&utm_content=${data.con}&campaign_code=${data.camp}&campaign_code_recurring=${data.rec}&signcode=${data.sign}`;
 
         if (termValue !== "") {
             url += `&utm_term=${termValue}`;
@@ -335,4 +339,5 @@
 
     generateLink();
 </script>
-
+</body>
+</html>
