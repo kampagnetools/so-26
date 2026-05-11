@@ -1,3 +1,58 @@
+<div class="msf-center-layout">
+    <div class="box">
+        <div class="header">Speak out</div>
+        
+        <div class="body">
+            <div class="input-section">
+                <label>Vælg kanal</label>
+                <select id="channel" onchange="generateLink()">
+                    <optgroup label="BETALT (PAID)">
+                        <option value="paid-social-lead">Paid Social (Lead Card)</option>
+                        <option value="paid-social-img">Paid Social (Image)</option>
+                        <option value="paid-social-vid">Paid Social (Video)</option>
+                        <option value="paid-linkedin-img">Paid LinkedIn (Image)</option>
+                        <option value="paid-linkedin-vid">Paid LinkedIn (Video)</option>
+                        <option value="search">Paid Search (Google)</option>
+                    </optgroup>
+                    <optgroup label="ORGANISK (ORGANIC)">
+                        <option value="organic-fb">Organic Facebook</option>
+                        <option value="organic-ig">Organic Instagram</option>
+                        <option value="organic-li">Organic LinkedIn</option>
+                        <option value="advocate">Advocate / Partner</option>
+                    </optgroup>
+                    <optgroup label="EMAIL">
+                        <option value="email">Email (Newsletter)</option>
+                    </optgroup>
+                    <optgroup label="ANDET (OTHER)">
+                        <option value="referral">Referral (msf)</option>
+                        <option value="web-banner">Web Banner (Internal)</option>
+                        <option value="print">Print (Outdoor)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="input-section">
+                <label>A/B-test eller specifikt budskab (UTM Term)</label>
+                <input type="text" id="utm_term" placeholder="Eks: test_a, foto_laege eller budskab_beskyttelse" oninput="generateLink()">
+                <small style="display:block; margin-top:5px; color:#666; font-size:11px;">
+                    Brug dette felt til at skelne mellem forskellige versioner af samme opslag.
+                </small>
+            </div>
+
+            <div class="output-section">
+                <label>Genereret URL</label>
+                <div id="final-url" class="url-display">...</div>
+                <button onclick="copyUrl()" id="copy-btn">KOPIÉR LINK</button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="code-line">underskriftskode: <span id="code-sign">-</span></div>
+            <div class="code-line">kampagnekode: <span id="code-camp">-</span></div>
+            <div class="code-line">fast_bidrag_kode: <span id="code-rec">-</span></div>
+        </div>
+    </div>
+</div>
 
 <style>
     html, body {
@@ -54,16 +109,17 @@
         width: 100%;
         border: 1px solid #000;
         padding: 15px;
-        padding-right: 45px;
+        padding-right: 45px; /* Plads til pilen */
         font-size: 16px;
         background: #fff;
         border-radius: 0;
         outline: none;
         box-sizing: border-box;
         font-family: inherit;
-        appearance: none;
+        appearance: none; /* Fjerner standard pil */
     }
 
+    /* Brugerdefineret pil rykket 20px ind fra højre */
     select {
         background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
         background-repeat: no-repeat;
@@ -72,53 +128,11 @@
         cursor: pointer;
     }
 
-    input:focus, select:focus {
+    input:focus {
         border-color: #ee0000;
     }
 
-    select:disabled {
-        background-color: #f4f4f4;
-        color: #000;
-        opacity: 1;
-        cursor: not-allowed;
-    }
-
     optgroup { font-weight: bold; background: #f0f0f0; }
-
-    .link-btn {
-        width: auto;
-        background: transparent;
-        color: #000;
-        border: 1px solid #000;
-        padding: 10px 16px;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        cursor: pointer;
-    }
-
-    .link-btn:hover { background: #000; color: #fff; }
-
-    .link-btn.active { background: #000; color: #fff; }
-
-    .custom-organic-wrap {
-        margin-top: 12px;
-        padding: 15px;
-        background: #f9f9f9;
-        border: 1px dashed #999;
-    }
-
-    .custom-organic-wrap label {
-        font-size: 11px;
-        margin-bottom: 6px;
-    }
-
-    .custom-organic-wrap small {
-        display: block;
-        margin-top: 5px;
-        color: #666;
-        font-size: 11px;
-    }
 
     .url-display {
         border: 1px solid #e0e0e0;
@@ -166,78 +180,14 @@
         font-family: monospace;
     }
 </style>
-</head>
-<body>
-<div class="msf-center-layout">
-    <div class="box">
-        <div class="header">Speak out</div>
-
-        <div class="body">
-            <div class="input-section">
-                <label>Vælg kanal</label>
-                <select id="channel" onchange="generateLink()">
-                    <option id="custom-placeholder" value="__custom__" hidden>Organic (ny)</option>
-                    <optgroup label="BETALT (PAID)">
-                        <option value="paid-social-lead">Paid Social (Lead Card)</option>
-                        <option value="paid-social-img">Paid Social (Image)</option>
-                        <option value="paid-social-vid">Paid Social (Video)</option>
-                        <option value="search">Paid Search (Google)</option>
-                    </optgroup>
-                    <optgroup label="ORGANISK (ORGANIC)">
-                        <option value="organic-fb">Organic Facebook</option>
-                        <option value="organic-ig">Organic Instagram</option>
-                        <option value="organic-li">Organic LinkedIn</option>
-                        <option value="advocate">Advocate / Partner</option>
-                    </optgroup>
-                    <optgroup label="EMAIL">
-                        <option value="email">Email (Newsletter)</option>
-                    </optgroup>
-                    <optgroup label="ANDET (OTHER)">
-                        <option value="referral">Referral (msf)</option>
-                        <option value="web-banner">Web Banner (Internal)</option>
-                        <option value="print">Print (Outdoor)</option>
-                    </optgroup>
-                </select>
-
-            </div>
-
-            <div class="input-section">
-                <button type="button" id="custom-toggle" class="link-btn" onclick="toggleCustomOrganic()">+ Tilføj ny organisk kilde</button>
-                <div id="custom-organic" class="custom-organic-wrap" style="display:none;">
-                    <label>Egen organic kilde (utm_source)</label>
-                    <input type="text" id="custom_source" placeholder="f.eks. youtube, threads, bluesky" oninput="generateLink()">
-                    <small>Når feltet er udfyldt overstyrer det dropdown-valget. <code>utm_medium=organic</code>, <code>utm_content=post</code>. Standardkoder: sign 4117 / camp 4124 / rec 4131.</small>
-                </div>
-            </div>
-
-            <div class="input-section">
-                <label>A/B-test (UTM Term)</label>
-                <input type="text" id="utm_term" placeholder="Eks: test_a, foto_laege eller budskab_beskyttelse" oninput="generateLink()">
-                <small style="display:block; margin-top:5px; color:#666; font-size:11px;">
-                    Brug dette felt til at skelne mellem forskellige versioner af samme opslag.
-                </small>
-            </div>
-
-            <div class="output-section">
-                <label>Genereret URL</label>
-                <div id="final-url" class="url-display">...</div>
-                <button onclick="copyUrl()" id="copy-btn">KOPIÉR LINK</button>
-            </div>
-        </div>
-
-        <div class="footer">
-            <div class="code-line">underskriftskode: <span id="code-sign">-</span></div>
-            <div class="code-line">kampagnekode: <span id="code-camp">-</span></div>
-            <div class="code-line">fast_bidrag_kode: <span id="code-rec">-</span></div>
-        </div>
-    </div>
-</div>
 
 <script>
     const trackingData = {
         "paid-social-lead":{ src: "facebook",  med: "paid-social", con: "leadcard",    sign: "4113", camp: "4120", rec: "4127", path: "/beskyt-laeger/tak/", isLead: true },
         "paid-social-img": { src: "facebook",  med: "paid-social", con: "image",       sign: "4114", camp: "4121", rec: "4128", path: "/beskyt-laeger/" },
         "paid-social-vid": { src: "facebook",  med: "paid-social", con: "video",       sign: "4114", camp: "4121", rec: "4128", path: "/beskyt-laeger/" },
+        "paid-linkedin-img":{ src: "linkedin", med: "paid-social", con: "image",       sign: "4114", camp: "4121", rec: "4128", path: "/beskyt-laeger/" },
+        "paid-linkedin-vid":{ src: "linkedin", med: "paid-social", con: "video",       sign: "4114", camp: "4121", rec: "4128", path: "/beskyt-laeger/" },
         "search":          { src: "google",    med: "cpc",         con: "search",      sign: "4118", camp: "4125", rec: "4132", path: "/beskyt-laeger/" },
         "organic-fb":      { src: "facebook",  med: "organic",     con: "post",        sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" },
         "organic-ig":      { src: "instagram", med: "organic",     con: "post",        sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" },
@@ -249,76 +199,21 @@
         "print":           { src: "outdoor",   med: "print",       con: "poster",      sign: "4116", camp: "4123", rec: "4130", path: "/beskyt-laeger/" }
     };
 
-    const ORGANIC_DEFAULTS = { med: "organic", con: "post", sign: "4117", camp: "4124", rec: "4131", path: "/beskyt-laeger/" };
-
-    function slugify(s) {
-        return s.trim().toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9_\-]/g, "");
-    }
-
-    let previousChannel = '';
-
-    function toggleCustomOrganic() {
-        const wrap = document.getElementById('custom-organic');
-        const btn = document.getElementById('custom-toggle');
-        const select = document.getElementById('channel');
-        const placeholder = document.getElementById('custom-placeholder');
-        const isOpen = wrap.style.display === 'block';
-
-        wrap.style.display = isOpen ? 'none' : 'block';
-        btn.classList.toggle('active', !isOpen);
-
-        if (isOpen) {
-            placeholder.hidden = true;
-            select.disabled = false;
-            if (previousChannel) select.value = previousChannel;
-            document.getElementById('custom_source').value = '';
-            btn.innerText = '+ Tilføj ny organisk kilde';
-        } else {
-            previousChannel = select.value;
-            placeholder.hidden = false;
-            select.value = '__custom__';
-            select.disabled = true;
-            document.getElementById('custom_source').focus();
-            btn.innerText = '× Annullér ny organisk kilde';
-        }
-        generateLink();
-    }
-
-    function getActiveData() {
-        const customWrap = document.getElementById('custom-organic');
-        if (customWrap.style.display === 'block') {
-            const customSrc = slugify(document.getElementById('custom_source').value || '');
-            if (!customSrc) return null;
-            return { src: customSrc, ...ORGANIC_DEFAULTS };
-        }
-        const channelKey = document.getElementById('channel').value;
-        return trackingData[channelKey] || null;
-    }
-
     function generateLink() {
-        const data = getActiveData();
-        const finalUrlEl = document.getElementById('final-url');
-
-        if (!data) {
-            finalUrlEl.innerText = "Skriv et kildenavn for at generere link...";
-            document.getElementById('code-sign').innerText = "-";
-            document.getElementById('code-camp').innerText = "-";
-            document.getElementById('code-rec').innerText = "-";
-            return;
-        }
-
+        const channelKey = document.getElementById('channel').value;
         const termValue = document.getElementById('utm_term').value.trim().replace(/\s+/g, '_').toLowerCase();
+        const data = trackingData[channelKey];
         const baseUrl = "https://msf.dk" + data.path;
-
-        let url = `${baseUrl}?campaign_code=${data.camp}&campaign_code_recurring=${data.rec}&signcode=${data.sign}&utm_campaign=speakout26&utm_source=${data.src}&utm_medium=${data.med}&utm_content=${data.con}`;
-
+        
+        let url = `${baseUrl}?utm_campaign=speakout26&utm_source=${data.src}&utm_medium=${data.med}&utm_content=${data.con}&campaign_code=${data.camp}&signcode=${data.sign}&campaign_code_recurring=${data.rec}`;
+        
         if (termValue !== "") {
             url += `&utm_term=${termValue}`;
         }
-
+        
         if (data.isLead) url += "&lead_card=true";
 
-        finalUrlEl.innerText = url;
+        document.getElementById('final-url').innerText = url;
         document.getElementById('code-sign').innerText = data.sign;
         document.getElementById('code-camp').innerText = data.camp;
         document.getElementById('code-rec').innerText = data.rec;
@@ -332,6 +227,6 @@
             setTimeout(() => { btn.innerText = "KOPIÉR LINK"; }, 1000);
         });
     }
-
+    
     generateLink();
 </script>
